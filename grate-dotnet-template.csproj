@@ -16,9 +16,12 @@
         <PackageId>grate.dotnet-template</PackageId>
         <Title>grate database project template</Title>
         <Authors>Erik A. Brandstadmoen</Authors>
-        <Description>Template to use when creating a database project using grate</Description>
+        <Description>`dotnet new` template to use when creating a database project using grate</Description>
         <PackageTags>dotnet-new;template;grate;database;roundhouse</PackageTags>
         <TargetFramework>netstandard2.0</TargetFramework>
+
+        <Copyright>Copyright (c) 2022 Erik A. Brandstadmoen</Copyright>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
 
         <IncludeContentInPack>true</IncludeContentInPack>
         <IncludeBuildOutput>false</IncludeBuildOutput>
