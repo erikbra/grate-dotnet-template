@@ -1,0 +1,38 @@
+﻿{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Erik A. Brandstadmoen",
+  "classifications": [ "Database", "grate" ],
+  "identity": "grate.dotnet-template",
+  "name": "Grate project template",
+  "sourceName": "NewProjectName",
+  "preferNameDirectory": true,
+  "shortName": "grate",
+  "tags": {
+    "language": "SQL",
+    "type": "project"
+  },
+  "symbols":{
+    "database": {
+      "type": "parameter",
+      "isRequired": true,
+      "FileRename": "696fd374-e61c-4021-8970-36b6cb97591f",
+      "replaces": "696fd374-e61c-4021-8970-36b6cb97591f"
+    }
+  },
+  "postActions": [{
+    "condition": "(OS != \"Windows_NT\")",
+    "description": "Make deploy scripts executable",
+    "manualInstructions": [{
+      "text": "Run 'chmod +x ./Deploy.ps1 ./scripts/Deploy.ps1'"
+    }],
+    "actionId": "cb9a6cf3-4f5c-4860-b9d2-03a574959774",
+    "args": {
+      "+x": [
+        "./Deploy.ps1",
+        "./scripts/Deploy.ps1"
+      ] 
+    },
+    "continueOnError": true
+  }],
+  "thirdPartyNotices": "https://github.com/erikbra/grate"
+}

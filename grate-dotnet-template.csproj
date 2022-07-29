@@ -1,0 +1,60 @@
+<Project>
+
+    <!-- Explicit top import to be able to override default targets after bottom import -->
+    <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
+    
+    <!-- 
+        See the following for details:
+        * https://docs.microsoft.com/en-us/nuget/create-packages/creating-a-package#from-a-convention-based-working-directory
+        * https://docs.microsoft.com/en-us/visualstudio/msbuild/how-to-extend-the-visual-studio-build-process?view=vs-2019
+        * https://docs.microsoft.com/en-us/dotnet/core/tools/custom-templates (coming later)
+    -->
+
+    <PropertyGroup>
+        <PackageType>Template</PackageType>
+        <PackageVersion>0.0.1</PackageVersion>
+        <PackageId>grate.dotnet-template</PackageId>
+        <Title>grate database project template</Title>
+        <Authors>Erik A. Brandstadmoen</Authors>
+        <Description>Templates to use when creating a database project using grate</Description>
+        <PackageTags>dotnet-new;templates;grate;database</PackageTags>
+        <TargetFramework>netstandard2.0</TargetFramework>
+
+        <IncludeContentInPack>true</IncludeContentInPack>
+        <IncludeBuildOutput>false</IncludeBuildOutput>
+        <ContentTargetFolders>content</ContentTargetFolders>
+        
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <Configuration>Release</Configuration>
+        <OutputPath>package</OutputPath>
+        <NoWarn>NU5110;NU5111;NU5128</NoWarn>
+        <RootNamespace>Templating.Database</RootNamespace>
+        
+        <!-- Necessary to include the .gitignore in the package -->
+        <NoDefaultExcludes>true</NoDefaultExcludes>
+    </PropertyGroup>
+    
+    <ItemGroup>
+        <Content Include="templates\**\*" Exclude="templates\**\bin\**;templates\**\obj\**" />
+        <Compile Remove="**\*" />
+        
+        <Content Remove="logs\**\*" />
+        <None Remove="logs\**\*" />
+        <None Remove="package\**\*" />
+        <Content Remove="package\**\*" />
+    </ItemGroup>
+    
+    <!-- Explicit bottom import to be able to override default targets after -->
+    <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
+
+
+    <!-- Override build target to avoid building an empty DLL -->
+    <Target Name="Build" DependsOnTargets="">
+    </Target>
+
+    <!-- Override resolve references target to avoid building an empty DLL -->
+    <Target Name="ResolveReferences" DependsOnTargets="">
+    </Target>
+
+
+</Project>
