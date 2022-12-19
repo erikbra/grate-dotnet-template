@@ -31,6 +31,8 @@ If (! (Test-Path "$($OutDir)")) {
 
 $SqlFilesDirectory= Join-Path $DbScriptsRoot $DatabaseName;
 
-$dontCreate=("$Environment" -ne "LOCAL") ? "-dnc " : ""
-
-dotnet tool run grate -- --silent --output "$($OutDir)" $dontCreate --files "$($SqlFilesDirectory)" --connectionstring "$($ConnectionString)" --version="$($Version)" --environment="$($Environment)"
+If (("$Environment" -ne "LOCAL")) {
+    dotnet tool run grate -- --silent --output "$($OutDir)" -dnc --files "$($SqlFilesDirectory)" --connectionstring "$($ConnectionString)" --version="$($Version)" --environment="$($Environment)"
+} Else {
+    dotnet tool run grate -- --silent --output "$($OutDir)" --files "$($SqlFilesDirectory)" --connectionstring "$($ConnectionString)" --version="$($Version)" --environment="$($Environment)"
+}

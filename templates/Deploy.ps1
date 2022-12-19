@@ -34,7 +34,7 @@ dotnet tool restore
 # Generate version number if not supplied as a parameter
 If ("$($Version)" -eq "")
 {
-    $Version = "$( gitversion -showvariable SemVer )"
+    $Version = "$( dotnet gitversion -showvariable SemVer )"
 }
 
 # Call the actual deploy ps1

@@ -45,20 +45,20 @@ To use the template, you first need to install it. If you are developing the tem
 from the `.nupkg` file directly:
 
 ```pwsh
-dotnet new -i <PATH_TO_NUPKG_FILE>
+dotnet new install <PATH_TO_NUPKG_FILE>
 ```
 
 e.g, in the grate-dotnet-template folder:
 ```pwsh
 dotnet pack
-dotnet new -i ./package/grate.dotnet-template.0.0.1.nupkg
+dotnet new install ./package/grate.dotnet-template.0.0.1.nupkg
 ```
 
 If you just want to use the latest published version of the package, just install it using the package Id 
 (assuming you or someone else have pushed it to a nuget repo you have in your sources):
 
 ```pwsh
-dotnet new -i grate.dotnet-template
+dotnet new install grate.dotnet-template
 ```
 
 More details here on the different ways to install a template: 

@@ -3,13 +3,13 @@
   "isRoot": true,
   "tools": {
     "grate": {
-      "version": "1.3.2",
+      "version": "1.4.0",
       "commands": [
         "grate"
       ]
     },
     "GitVersion.Tool": {
-      "version": "5.10.3",
+      "version": "5.11.1",
       "commands": [
         "dotnet-gitversion"
       ]

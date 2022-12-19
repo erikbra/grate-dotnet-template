@@ -168,3 +168,5 @@ ASALocalRun/
 # Default output folders (running grate on your dev box, and packaging folder)
 logs
 package
+
+.envrc
