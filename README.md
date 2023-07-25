@@ -35,7 +35,7 @@ To package up the template, simply run
 dotnet pack
 ```
 
-The resulting `.nupkg` in the `packages` folder contains a template that can be installed on client machines, and used for creating new projects
+The resulting `.nupkg` in the `package` folder contains a template that can be installed on client machines, and used for creating new projects
 of this type. This nupkg should be pushed to a nuget repo.
 
 
