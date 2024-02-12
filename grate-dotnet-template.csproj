@@ -12,7 +12,7 @@
 
     <PropertyGroup>
         <PackageType>Template</PackageType>
-        <PackageVersion>0.3.1</PackageVersion>
+        <PackageVersion>0.3.2</PackageVersion>
         <PackageId>grate.dotnet-template</PackageId>
         <Title>grate database project template</Title>
         <Authors>Erik A. Brandstadmoen</Authors>
@@ -22,7 +22,7 @@
 
         <PackageReadmeFile>README.md</PackageReadmeFile>
 
-        <Copyright>Copyright (c) 2022-2023 Erik A. Brandstadmoen</Copyright>
+        <Copyright>Copyright (c) 2022-2024 Erik A. Brandstadmoen</Copyright>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
 
         <IncludeContentInPack>true</IncludeContentInPack>
