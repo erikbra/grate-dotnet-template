@@ -164,3 +164,4 @@ ASALocalRun/
 
 # Rider IDE
 .idea
+.DS_Store
