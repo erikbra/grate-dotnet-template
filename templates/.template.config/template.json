@@ -23,7 +23,7 @@
     "condition": "(OS != \"Windows_NT\")",
     "description": "Make deploy scripts executable",
     "manualInstructions": [{
-      "text": "Run 'chmod +x ./Deploy.ps1 ./scripts/Deploy.ps1'"
+      "text": "Run 'chmod +x ./Deploy.ps1 ./scripts/Deploy.ps1 ./scripts/StartSqlServerDocker.ps1'"
     }],
     "actionId": "cb9a6cf3-4f5c-4860-b9d2-03a574959774",
     "args": {
