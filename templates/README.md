@@ -229,9 +229,9 @@ For reusable argument sets, use response files (`.rsp`) as documented here:
 Example `grate_settings.rsp`:
 
 ```text
--cs Server=localhost;Database=MyDatabase;Integrated Security=true;
--f ./db/696fd374-e61c-4021-8970-36b6cb97591f
---env LOCAL
+--connectionstring Server=localhost;Database=MyDatabase;Integrated Security=true;
+--files ./db/696fd374-e61c-4021-8970-36b6cb97591f
+--environment LOCAL
 --version 1.0.0
 ```
 
