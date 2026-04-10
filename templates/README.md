@@ -1,75 +1,333 @@
-# Introduction to this project
-This project is based on a `dotnet new` template for grate, an opinionated example on how to use grate with dotnet projects
-to organize the SQL scripts.
+# Database Migration Project
 
-The template was installed using: 
+This project contains SQL database migration scripts managed by **grate**, a SQL scripts migration runner.
+See the [grate documentation](https://grate-devs.github.io/grate/) for complete reference.
 
-```
-dotnet new -i grate.dotnet-template
-```
+## Quick Start
 
-With the template installed, the project was created using the following command: 
-
-```
-mkdir 696fd374-e61c-4021-8970-36b6cb97591f
-cd 696fd374-e61c-4021-8970-36b6cb97591f
-dotnet new grate --database 696fd374-e61c-4021-8970-36b6cb97591f
-```
-
-# Getting Started with grate
-grate is an automated database deployment (change management) system that allows you to use plain old .sql scripts but gain much more.
-
-For more info, see: https://erikbra.github.io/grate/getting-started/ 
-
-## A brief walk-through of the generated project.
-
-This projects (ab)uses a `.csproj` file to store just SQL files, and some related tools.
-In the project file we override the default `Build` and `ResolveReferences` targets of msbuild, to try 
-to avoid creating any DLLs, which we don't want. There are also a few properties that makes `dotnet pack` include
-content files in the output, and make the result appropriate for distributing SQL files instead.
-
-The project includes a `.config` folder, which specifies which .net local tool to use (grate and gitversion).
-
-## Using the project
-
-For both local development, and in CI/CD scenarios, to run the 
-database migration (which grate calls it), you need to set a couple of environment variables:
-
-* ConnectionStrings__696fd374-e61c-4021-8970-36b6cb97591f
-* GrateEnvironment
-
-then you can just run the `Deploy.ps1` script. It should install grate as a .net local tool, and call it with the 
-correct parameters.
-
-## Running locally
-
-To migrate your local database, simply, in the project directory (that means **this** folder), run: 
+See [Environment Setup](#environment-setup) section below, then run:
 
 ```pwsh
-❯ ./Deploy.ps1 
+./Deploy.ps1
 ```
 
-## Packaging your new project
+This installs grate as a local tool and runs all migrations.
 
-The template creates a project fit for packaging as a `.nupkg` and shipping. To package it, just run 
+## Project Structure
+
+This project uses a `.csproj` file to organize SQL migration scripts:
+
+```
+db/
+├── 696fd374-e61c-4021-8970-36b6cb97591f/      (Database folder)
+│   ├── up/                                     (One-time scripts - main migrations)
+│   ├── functions/                              (Anytime scripts - rerun if changed)
+│   ├── views/                                  (Anytime scripts - rerun if changed)
+│   ├── sprocs/                                 (Anytime scripts - rerun if changed)
+│   ├── triggers/                               (Anytime scripts - rerun if changed)
+│   ├── indexes/                                (Anytime scripts - rerun if changed)
+│   ├── permissions/                            (Everytime scripts - always run)
+│   ├── afterMigration/                         (Everytime scripts - always run)
+│   ├── beforeMigration/                        (Everytime scripts - always run)
+│   ├── createDatabase/                         (Anytime scripts - custom database creation)
+│   ├── alterDatabase/                          (Anytime scripts - database configuration)
+│   ├── runAfterCreateDatabase/                 (Anytime scripts - after fresh create)
+│   ├── runBeforeUp/                            (Anytime scripts - before one-time scripts)
+│   ├── runFirstAfterUp/                        (One-time scripts - out-of-order)
+│   └── runAfterOtherAnyTimeScripts/            (Anytime scripts - final cleanup)
+├── README.md                                   (This file)
+└── .env.example                                (Example environment variables)
+```
+
+## Migration Folder Guide
+
+grate processes folders in a fixed order. Each folder type behaves differently:
+
+### **One-time Scripts** (run exactly once)
+
+#### `up/`
+
+The main migration folder. Contains DDL (schema changes) and DML (data changes).
+
+- Scripts run exactly ONCE and never again
+- Cannot be modified after running (prevents accidental data loss)
+- If you need to fix something, create a NEW script
+- **Naming:** Use zero-padded numbers: `0001_initial.sql`, `0002_add_users_table.sql`
+
+See [up/ folder](./db/696fd374-e61c-4021-8970-36b6cb97591f/up/README.md) for examples and guidelines.
+
+#### `runFirstAfterUp/`
+
+For out-of-order one-time scripts that must run after `up` but before anytime scripts.
+
+See [runFirstAfterUp/ folder](./db/696fd374-e61c-4021-8970-36b6cb97591f/runFirstAfterUp/README.md) for details.
+
+### **Anytime Scripts** (rerun when changed)
+
+#### `functions/`, `views/`, `sprocs/`, `triggers/`, `indexes/`
+
+These scripts are re-run whenever their content changes (hash mismatch).
+
+- **Create or Alter:** Always use `CREATE OR ALTER` for updateability
+- **Dependencies:** Order scripts alphabetically if there are dependencies
+- Useful for iterative development
+
+See each folder's README for examples:
+- [functions/](./db/696fd374-e61c-4021-8970-36b6cb97591f/functions/README.md)
+- [views/](./db/696fd374-e61c-4021-8970-36b6cb97591f/views/README.md)
+- [sprocs/](./db/696fd374-e61c-4021-8970-36b6cb97591f/sprocs/README.md)
+- [triggers/](./db/696fd374-e61c-4021-8970-36b6cb97591f/triggers/README.md)
+- [indexes/](./db/696fd374-e61c-4021-8970-36b6cb97591f/indexes/README.md)
+
+#### `beforeMigration/`
+
+Runs before any migrations. Use for:
+- Backups
+- Pre-migration checks
+- Disabling constraints
+
+See [beforeMigration/ folder](./db/696fd374-e61c-4021-8970-36b6cb97591f/beforeMigration/README.md) for examples.
+
+#### `alterDatabase/`
+
+Database configuration (not data). Use for:
+- Recovery mode
+- Query store settings
+- Compatibility levels
+
+See [alterDatabase/ folder](./db/696fd374-e61c-4021-8970-36b6cb97591f/alterDatabase/README.md) for examples.
+
+#### `createDatabase/`
+
+Custom `CREATE DATABASE` script (uses default if omitted).
+
+See [createDatabase/ folder](./db/696fd374-e61c-4021-8970-36b6cb97591f/createDatabase/README.md) for details.
+
+#### `runAfterCreateDatabase/`
+
+Only runs if the database is freshly created. Use for:
+- Creating user accounts
+- Default schemas
+- Initial configuration
+
+See [runAfterCreateDatabase/ folder](./db/696fd374-e61c-4021-8970-36b6cb97591f/runAfterCreateDatabase/README.md) for examples.
+
+#### `runBeforeUp/`
+
+Runs before `up` scripts. Use for:
+- Preparation work
+- Temporary tables
+- Prerequisites
+
+See [runBeforeUp/ folder](./db/696fd374-e61c-4021-8970-36b6cb97591f/runBeforeUp/README.md) for examples.
+
+#### `runAfterOtherAnyTimeScripts/`
+
+Runs after all other anytime scripts. Use for:
+- Re-enabling constraints
+- Index rebuilds
+- Final cleanup
+
+See [runAfterOtherAnyTimeScripts/ folder](./db/696fd374-e61c-4021-8970-36b6cb97591f/runAfterOtherAnyTimeScripts/README.md) for examples.
+
+### **Everytime Scripts** (always run)
+
+#### `permissions/`
+
+Runs on every migration to keep permissions in desired state (idempotent).
+
+```sql
+GRANT EXECUTE ON SCHEMA::[dbo] TO [appuser];
+GRANT SELECT, INSERT, UPDATE, DELETE ON [dbo].[Users] TO [appuser];
+```
+
+See [permissions/ folder](./db/696fd374-e61c-4021-8970-36b6cb97591f/permissions/README.md) for examples.
+
+#### `afterMigration/`
+
+Runs after all migrations. Use for:
+- Replication re-enabling
+- Statistics updates
+- Post-migration validation
+
+See [afterMigration/ folder](./db/696fd374-e61c-4021-8970-36b6cb97591f/afterMigration/README.md) for examples.
+
+## Environment Setup
+
+### Required Environment Variables
+
+Set these before running migrations:
+
+```bash
+# Connection string to the database
+export ConnectionStrings__696fd374-e61c-4021-8970-36b6cb97591f="Server=localhost;Database=MyDatabase;Integrated Security=true;"
+
+# Environment name (affects which environment-specific scripts run)
+export GrateEnvironment=LOCAL  # or DEV, STAGING, PRODUCTION
+```
+
+### Optional Environment Variables
+
+```bash
+export GrateSchemaName=grate           # defaults to 'grate'
+export CommandTimeout=60               # command timeout in seconds
+export AdminCommandTimeout=300         # admin command timeout in seconds
+export Transaction=false               # run in transaction mode
+export DryRun=false                    # log what would run but don't execute
+```
+
+Create or update `.envrc` with the required values above, and customize it as needed for your environment.
+
+## Running Migrations
+
+### Start SQL Server in Docker (local)
+
+Use the helper script to create/start a local SQL Server container with defaults aligned to `.envrc` (localhost:1434):
+
+```pwsh
+./scripts/StartSqlServerDocker.ps1
+```
+
+With custom values:
+
+```pwsh
+./scripts/StartSqlServerDocker.ps1 -ContainerName "grate-sql-dev" -HostPort 1435 -SqlPassword "MyStrong!Passw0rd"
+```
+
+The script prints a ready-to-copy `export ConnectionStrings__...` line when the container is up.
+
+### Local Development
+
+```pwsh
+./Deploy.ps1
+```
+
+With parameters:
+
+```pwsh
+./Deploy.ps1 -Environment "LOCAL" -ConnectionString "Server=localhost;Database=MyDB;Integrated Security=true;" -Version "1.0.0"
+```
+
+### Environment-Specific Scripts
+
+Create scripts with environment qualifiers to run only in specific environments.
+The filename must contain a literal `.env.` segment:
+
+```
+0001_data_seed.sql                        # Always runs
+0002_seed_data.env.DEV.sql                # Only in DEV environment
+0003_test_data.env.LOCAL.sql              # Only in LOCAL environment
+0004_production_config.env.PRODUCTION.sql # Only in PRODUCTION environment
+```
+
+## Configuration
+
+grate is primarily configured via command-line arguments.
+For reusable argument sets, use response files (`.rsp`) as documented here:
+[Response Files](https://grate-devs.github.io/grate/response-files/)
+
+Example `grate_settings.rsp`:
+
+```text
+--connectionstring Server=localhost;Database=MyDatabase;Integrated Security=true;
+--files ./db/696fd374-e61c-4021-8970-36b6cb97591f
+--environment LOCAL
+--version 1.0.0
+```
+
+Run with:
+
+```pwsh
+grate @./grate_settings.rsp
+```
+
+See [grate configuration options](https://grate-devs.github.io/grate/configuration-options/) for full CLI argument reference.
+
+## Packaging for Distribution
+
+To package this project as a NuGet package:
+
 ```pwsh
 nuget pack
 ```
 
-in your newly created project directory. This should create a `.nupkg` file (which is simply a zip-file 
-with a special file structure and a different extension), which can be downloaded somewhere (build server, etc), and 
-run.
+This creates a `.nupkg` file that can be:
+- Deployed to NuGet feed
+- Used in CI/CD pipelines
+- Shared across environments
 
-## Using you packaged project
+## Common Patterns
 
-To use your project, use some way of downloading the `.nupkg`, and just use the files to run the install scripts. 
-You can use nuget, but it's not a necessity, you can just download the file from somewhere, and treat it as a zip 
-file, if that better suits your needs.
+### Adding a New Table
 
-Example, using NuGet:
+1. Create `db/696fd374-e61c-4021-8970-36b6cb97591f/up/0NNN_create_my_table.sql`
+2. Run `./Deploy.ps1`
+
+### Adding a Stored Procedure
+
+1. Create `db/696fd374-e61c-4021-8970-36b6cb97591f/sprocs/0NNN_sp_my_procedure.sql`
+2. Use `CREATE OR ALTER PROCEDURE` (not `CREATE PROCEDURE`)
+3. Run `./Deploy.ps1` - it will update automatically
+
+### Adding a View
+
+1. Create `db/696fd374-e61c-4021-8970-36b6cb97591f/views/0NNN_v_my_view.sql`
+2. Use `CREATE OR ALTER VIEW`
+3. Run `./Deploy.ps1` - it will update automatically
+
+### Setting Up Permissions
+
+Edit `permissions/` folder scripts to grant/revoke access:
+
+```sql
+GRANT EXECUTE ON [dbo].[sp_MyProcedure] TO [appuser];
+GRANT SELECT, INSERT, UPDATE ON [dbo].[MyTable] TO [appuser];
+```
+
+These run on every migration, so permissions are always in desired state.
+
+## Troubleshooting
+
+### Script Already Ran (and can't be modified)
+
+You modified a one-time script in the `up` folder after it ran. Solution: Create a NEW script that makes the correction.
+
+```sql
+-- Incorrect: 0001_create_users.sql (already ran, can't modify)
+
+-- Correct: Create new migration
+-- 0002_fix_users_table.sql
+ALTER TABLE [dbo].[Users] ADD [NewColumn] INT;
+```
+
+### Scripts Not Running
+
+Check:
+1. Environment variables are set correctly
+2. Database connection is accessible
+3. Script file naming (alphabetical order matters)
+4. Script content hash (for anytime scripts)
+
+Use `--dryrun` to see what would run:
 
 ```pwsh
-❯ nuget install 696fd374-e61c-4021-8970-36b6cb97591f -OutputDirectory somewhere -DirectDownload -Source /tmp/696fd374-e61c-4021-8970-36b6cb97591f/package/
-❯ cd ./somewhere/696fd374-e61c-4021-8970-36b6cb97591f.1.0.0/content/
-❯ ./Deploy.ps1 
+grate --dryrun --connectionstring "..." --files "./db/696fd374-e61c-4021-8970-36b6cb97591f"
 ```
+
+### Roll Back a Migration
+
+grate doesn't support rollback (by design - how would you undo a DROP COLUMN?).
+
+Instead:
+1. Back up database before running migrations
+2. Use transaction mode: `grate --transaction ...`
+3. Create a corrective script (new migration) if you need to fix something
+
+## References
+
+- [grate Documentation](https://grate-devs.github.io/grate/)
+- [Getting Started Guide](https://grate-devs.github.io/grate/getting-started/)
+- [Configuration Options](https://grate-devs.github.io/grate/configuration-options/)
+- [Script Types](https://grate-devs.github.io/grate/script-types/)
+- [Environment-Specific Scripts](https://grate-devs.github.io/grate/environment-scripts/)
+- [Token Replacement](https://grate-devs.github.io/grate/token-replacement/)

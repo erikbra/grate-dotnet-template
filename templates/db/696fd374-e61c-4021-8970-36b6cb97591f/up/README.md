@@ -1,20 +1,60 @@
-# Up scripts
+# up
 
-* __One-time scripts__ (Must create a new script for each change)
+**Type:** One-time scripts
 
-Normal table creations, etc
+This is where the bulk of your migration scripts go. These scripts run exactly once and never again.
+If a one-time script is modified after it has run, grate will fail (by design, to prevent accidental data loss).
 
-1. DDL (schema changes - database structure)
-1. DML (inserts/updates/deletes)
+Common use cases:
+- Creating tables
+- Adding columns
+- Removing columns
+- Creating indexes
+- Inserting reference data
+- Migrating data
+- Any one-time schema changes
+
+**Important:** Every schema change requires a NEW script. You cannot modify an up script after it has been run.
+If you need to correct something, create a new script that makes the correction.
 
 
-## How does the order work?
+## Naming Convention
 
-grate always runs files in order alphabetically.
+Files run in alphabetical order. Use one of these formats:
+- **Zero-padded numbers** (recommended): `0001_initial.sql`, `0002_add_users_table.sql`, `0003_add_email_column.sql`
+- **Timestamps**: `20210101000000_initial.sql`, `20210101000100_add_users_table.sql`
+- **Another format**: Pick what works for your team
 
-## How should I name my scripts?
+## Example
 
-One should prepend your order specific scripts with either a number moving upwards padded with three zeros (i.e. `0001_somescript.sql` followed by `0002_nextscript.sql`) or a nice long date time in YYYYMMddHHmmss format (i.e. `20121026091400_somescript.sql` followed by `20121026091401_nextscript.sql`), but you are not limited to those options. Some people do a separation by numbers as in `####.##.##.####` or something else. Find what works for you (and your team) and use it.
 
-## Errors
-If there is a change to a one time script and the migrator is run, RH will determine you have changed that file and will shut down immediately with errors.  That being said, there is a configuration setting to allow you to still run with warnings. Although not recommended, RH tries not to be a tool that constrains users.  
+```sql
+-- 0001_create_schema.sql
+CREATE SCHEMA [app];
+GO
+```
+
+```sql
+-- 0002_create_users_table.sql
+CREATE TABLE [app].[Users] (
+	[UserId] INT IDENTITY PRIMARY KEY,
+	[UserName] NVARCHAR(100) NOT NULL UNIQUE,
+	[Email] NVARCHAR(255) NOT NULL,
+	[CreatedDate] DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
+	[DeletedDate] DATETIME2 NULL
+);
+GO
+```
+
+```sql
+-- 0003_insert_admin_user.sql
+INSERT INTO [app].[Users] ([UserName], [Email])
+VALUES ('admin', 'admin@example.com');
+GO
+```
+
+## Important Notes
+
+**Immutability:** One-time scripts cannot be modified after they have run. If you need to make a correction, create a new script.
+
+**Transaction support:** Use `--transaction` flag with grate to wrap all scripts in a transaction and rollback on failure.
