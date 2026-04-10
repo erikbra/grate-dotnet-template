@@ -176,7 +176,7 @@ Transaction=false               # run in transaction mode
 DryRun=false                    # log what would run but don't execute
 ```
 
-Copy `.env.example` to `.env` and customize as needed.
+Create or update `.envrc` with the required values above, and customize it as needed for your environment.
 
 ## Running Migrations
 
