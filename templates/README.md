@@ -160,20 +160,20 @@ Set these before running migrations:
 
 ```bash
 # Connection string to the database
-ConnectionStrings__696fd374-e61c-4021-8970-36b6cb97591f=Server=localhost;Database=MyDatabase;Integrated Security=true;
+export ConnectionStrings__696fd374-e61c-4021-8970-36b6cb97591f="Server=localhost;Database=MyDatabase;Integrated Security=true;"
 
 # Environment name (affects which environment-specific scripts run)
-GrateEnvironment=LOCAL  # or DEV, STAGING, PRODUCTION
+export GrateEnvironment=LOCAL  # or DEV, STAGING, PRODUCTION
 ```
 
 ### Optional Environment Variables
 
 ```bash
-GrateSchemaName=grate           # defaults to 'grate'
-CommandTimeout=60               # command timeout in seconds
-AdminCommandTimeout=300         # admin command timeout in seconds
-Transaction=false               # run in transaction mode
-DryRun=false                    # log what would run but don't execute
+export GrateSchemaName=grate           # defaults to 'grate'
+export CommandTimeout=60               # command timeout in seconds
+export AdminCommandTimeout=300         # admin command timeout in seconds
+export Transaction=false               # run in transaction mode
+export DryRun=false                    # log what would run but don't execute
 ```
 
 Create or update `.envrc` with the required values above, and customize it as needed for your environment.
